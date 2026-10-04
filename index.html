@@ -1,613 +1,707 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Genesis Adventure: Adam's Mission</title>
-    <style>
-* {
-  box-sizing: border-box;
-}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Genesis: The Beginning</title>
+  <style>
+    :root {
+      --bg: #091d18;
+      --panel: #132d27;
+      --panel-2: #1d413d;
+      --text: #edf6ee;
+      --gold: #e9c26b;
+      --green: #8ee0a6;
+      --blue: #6bc3ff;
+      --red: #ff7d6b;
+      --dark: #0a1714;
+      --shadow: rgba(0,0,0,0.35);
+    }
 
-:root {
-  --bg: #0d1f17;
-  --panel: #112c21;
-  --panel-2: #18362b;
-  --text: #f1f5d6;
-  --accent: #d7a63f;
-  --accent-2: #8cd089;
-  --danger: #d76e46;
-  --tile: #2a4f38;
-  --tile-dark: #173824;
-  --tile-light: #3a6d4d;
-  --shadow: rgba(0, 0, 0, 0.35);
-}
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at top, #214935, var(--bg) 60%);
+    }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: radial-gradient(circle at top, #214833, var(--bg) 65%);
-  color: var(--text);
-}
+    .app {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 16px;
+    }
 
-button {
-  cursor: pointer;
-  border: none;
-  border-radius: 10px;
-  background: linear-gradient(180deg, #dbb462, #b9852b);
-  color: #20170a;
-  font-weight: 700;
-  padding: 0.7rem 1rem;
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
-}
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(19, 45, 39, 0.95);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      box-shadow: 0 12px 30px var(--shadow);
+      padding: 16px 20px;
+      margin-bottom: 16px;
+    }
 
-button:hover {
-  filter: brightness(1.05);
-}
+    h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.8rem);
+      letter-spacing: 0.05em;
+    }
 
-.game-shell {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem;
-}
+    .subtitle {
+      margin: 6px 0 0;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #d7e7db;
+      opacity: 0.85;
+    }
 
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  background: rgba(18, 41, 31, 0.9);
-  padding: 1rem 1.25rem;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 14px;
-  margin-bottom: 1rem;
-  box-shadow: 0 10px 25px var(--shadow);
-}
+    .hud {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      font-weight: 600;
+    }
 
-.topbar h1 {
-  margin: 0;
-  font-size: clamp(1.8rem, 3vw, 3rem);
-}
+    .game-layout {
+      display: grid;
+      grid-template-columns: 1.8fr 0.9fr;
+      gap: 16px;
+    }
 
-.topbar p {
-  margin: 0.2rem 0 0;
-  color: #ceeacb;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-size: 0.8rem;
-}
+    .board-panel, .story-panel, .controls-panel {
+      background: rgba(19, 45, 39, 0.95);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      box-shadow: 0 12px 30px var(--shadow);
+    }
 
-.hud {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  align-items: flex-end;
-  text-align: right;
-}
+    .board-panel {
+      padding: 14px;
+    }
 
-.game-layout {
-  display: grid;
-  grid-template-columns: 1.5fr 0.9fr;
-  gap: 1rem;
-}
+    .board {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(26px, 1fr));
+      gap: 4px;
+      background: linear-gradient(180deg, #163a2f, #0d261d);
+      border-radius: 12px;
+      padding: 10px;
+      min-height: 480px;
+      aspect-ratio: 12 / 8;
+    }
 
-.board-panel,
-.story-panel,
-.controls-panel {
-  background: rgba(17, 44, 33, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  box-shadow: 0 12px 24px var(--shadow);
-}
+    .tile {
+      position: relative;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255,255,255,0.04);
+      overflow: hidden;
+    }
 
-.board-panel {
-  padding: 1rem;
-}
+    .tile.grass { background: linear-gradient(180deg, #4a8d5c, #2d6944); }
+    .tile.path { background: linear-gradient(180deg, #b9965d, #8f6c34); }
+    .tile.water { background: linear-gradient(180deg, #53a3d7, #2f6c9c); }
+    .tile.tree { background: linear-gradient(180deg, #3c8550, #234d34); }
+    .tile.rock { background: linear-gradient(180deg, #8a8d99, #5c6270); }
+    .tile.dark { background: linear-gradient(180deg, #36413f, #1d2e2c); }
+    .tile.altar { background: linear-gradient(180deg, #a8976d, #7a5c38); }
+    .tile.wood { background: linear-gradient(180deg, #915f38, #5d331c); }
+    .tile.fire { background: linear-gradient(180deg, #f59d4d, #d64d1d); }
 
-.board {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(24px, 1fr));
-  gap: 4px;
-  background: linear-gradient(180deg, #1a3829, #0f251a);
-  border-radius: 12px;
-  padding: 0.75rem;
-  aspect-ratio: 12 / 8;
-  min-height: 460px;
-}
+    .tile::after {
+      content: attr(data-icon);
+      font-size: clamp(0.9rem, 1.8vw, 1.5rem);
+      text-shadow: 0 3px 10px rgba(0,0,0,0.25);
+    }
 
-.tile {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  background: var(--tile);
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.04);
-}
+    .player {
+      position: absolute;
+      width: 72%;
+      height: 72%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #f6d7b6, #c58d4d 60%, #6d4425 100%);
+      border: 2px solid rgba(0,0,0,0.38);
+      z-index: 3;
+      box-shadow: inset 0 0 12px rgba(255,255,255,0.25);
+    }
 
-.tile.grass { background: linear-gradient(180deg, var(--tile-light), var(--tile)); }
-.tile.water { background: linear-gradient(180deg, #4ba0d9, #2f5a8a); }
-.tile.tree { background: linear-gradient(180deg, #3d8f4e, #245b37); }
-.tile.rock { background: linear-gradient(180deg, #7d7d7d, #4d4d4d); }
-.tile.path { background: linear-gradient(180deg, #b89249, #8d6a2d); }
-.tile.dark { background: linear-gradient(180deg, #37443d, #202b28); }
+    .story-panel {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
 
-.tile::after {
-  content: attr(data-icon);
-  font-size: clamp(0.75rem, 1.8vw, 1.3rem);
-  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
-}
+    .info-box {
+      background: rgba(31, 60, 52, 0.8);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
 
-.player {
-  position: absolute;
-  width: 72%;
-  height: 72%;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #f3d7b2, #c89158 60%, #6b4a2d 100%);
-  border: 2px solid rgba(0,0,0,0.35);
-  box-shadow: inset 0 0 12px rgba(255,255,255,0.25);
-  z-index: 3;
-}
+    .info-box h2 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      color: var(--green);
+    }
 
-.story-panel {
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
+    .info-box p {
+      margin: 0;
+      line-height: 1.5;
+    }
 
-.info-box {
-  background: rgba(24, 54, 43, 0.8);
-  border-radius: 12px;
-  padding: 0.9rem 1rem;
-  border: 1px solid rgba(255,255,255,0.05);
-}
+    .log-box {
+      flex: 1;
+    }
 
-.info-box h2 {
-  margin: 0 0 0.45rem;
-  font-size: 1.1rem;
-  color: var(--accent-2);
-}
+    #storyLog {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 360px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
 
-.info-box p {
-  margin: 0;
-  line-height: 1.5;
-}
+    .log-entry {
+      padding: 8px 10px;
+      border-left: 3px solid var(--gold);
+      background: rgba(255,255,255,0.04);
+      border-radius: 0 8px 8px 0;
+      line-height: 1.42;
+    }
 
-.log-box {
-  flex: 1;
-}
+    .controls-panel {
+      margin-top: 16px;
+      padding: 16px;
+    }
 
-#storyLog {
-  max-height: 340px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-  padding-right: 0.4rem;
-}
+    .movement-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 66px);
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
 
-.log-entry {
-  background: rgba(255,255,255,0.04);
-  border-left: 3px solid var(--accent);
-  padding: 0.5rem 0.7rem;
-  border-radius: 0 8px 8px 0;
-  line-height: 1.45;
-}
+    .movement-grid button {
+      width: 66px;
+      height: 58px;
+      font-size: 1.5rem;
+    }
 
-.controls-panel {
-  margin-top: 1rem;
-  padding: 1rem;
-}
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
 
-.movement-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 60px);
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
+    .actions button {
+      min-width: 150px;
+      font-size: 0.95rem;
+    }
 
-.movement-grid button {
-  width: 60px;
-  height: 60px;
-  font-size: 1.5rem;
-}
+    .button-primary {
+      background: linear-gradient(180deg, #ecd07c, #d2972f);
+    }
+    .button-danger {
+      background: linear-gradient(180deg, #ffae80, #e06a40);
+    }
+    .button-cyan {
+      background: linear-gradient(180deg, #86dbff, #4aa7d8);
+    }
 
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  justify-content: center;
-}
-
-.actions button {
-  min-width: 140px;
-}
-
-@media (max-width: 850px) {
-  .game-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .board {
-    min-height: 380px;
-  }
-
-  .topbar {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .hud {
-    align-items: flex-start;
-    text-align: left;
-  }
-}
-    </style>
-</head>
-<body>
-    <div class="game-shell">
-      <header class="topbar">
-        <div>
-          <h1>Genesis Adventure</h1>
-          <p>Adam's Mission</p>
-        </div>
-        <div class="hud">
-          <span id="chapterLabel">Chapter 1</span>
-          <span id="missionLabel">Mission: Step into the Garden</span>
-        </div>
-      </header>
-
-      <main class="game-layout">
-        <section class="board-panel">
-          <div id="gameBoard" class="board" aria-label="Game board"></div>
-        </section>
-
-        <aside class="story-panel">
-          <div class="info-box">
-            <h2>Adam</h2>
-            <p id="playerInfo">A man formed by God, placed in Eden with a purpose.</p>
-          </div>
-
-          <div class="info-box">
-            <h2>Mission</h2>
-            <p id="missionText">Walk the Garden, honor God, and protect what He has made.</p>
-          </div>
-
-          <div class="info-box log-box">
-            <h2>Story Log</h2>
-            <div id="storyLog" aria-live="polite"></div>
-          </div>
-        </aside>
-      </main>
-
-      <footer class="controls-panel">
-        <div class="movement-grid">
-          <div></div>
-          <button data-dir="up">↑</button>
-          <div></div>
-          <button data-dir="left">←</button>
-          <button data-dir="down">↓</button>
-          <button data-dir="right">→</button>
-        </div>
-
-        <div class="actions">
-          <button id="inspectBtn">Inspect</button>
-          <button id="talkBtn">Talk</button>
-          <button id="takeBtn">Take / Gather</button>
-          <button id="actionBtn">Use / Act</button>
-        </div>
-      </footer>
-    </div>
-
-    <script>
-const BOARD_WIDTH = 12;
-const BOARD_HEIGHT = 8;
-
-const tileTypes = {
-  grass: { icon: '🌿', className: 'grass' },
-  water: { icon: '💧', className: 'water' },
-  tree: { icon: '🌳', className: 'tree' },
-  rock: { icon: '🪨', className: 'rock' },
-  path: { icon: '🏫', className: 'path' },
-  dark: { icon: '🌑', className: 'dark' },
-};
-
-const state = {
-  chapter: 1,
-  mission: 'Step into the Garden',
-  player: { x: 1, y: 1 },
-  fruitTaken: false,
-  serpentTempted: false,
-  serpentDefeated: false,
-  namedAnimals: false,
-  storyIndex: 0,
-  completed: false,
-  logs: [],
-};
-
-const world = [
-  [ 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass' ],
-  [ 'grass', 'grass', 'grass', 'grass', 'path', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass' ],
-  [ 'grass', 'grass', 'tree', 'grass', 'path', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass' ],
-  [ 'grass', 'grass', 'grass', 'grass', 'path', 'grass', 'water', 'water', 'grass', 'grass', 'grass', 'grass' ],
-  [ 'grass', 'grass', 'grass', 'grass', 'path', 'grass', 'water', 'water', 'grass', 'grass', 'grass', 'grass' ],
-  [ 'grass', 'grass', 'grass', 'grass', 'path', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass' ],
-  [ 'grass', 'grass', 'grass', 'grass', 'path', 'grass', 'grass', 'grass', 'grass', 'tree', 'grass', 'grass' ],
-  [ 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass' ],
-];
-
-const special = {
-  tree: { x: 2, y: 2, label: 'Tree of Knowledge', description: 'The forbidden tree stands in the middle of Eden, heavy with fruit.' },
-  river: { x: 6, y: 3, label: 'River of Eden', description: 'The river flows through the garden, full of life and refreshment.' },
-  serpent: { x: 9, y: 1, label: 'Serpent', description: 'The serpent slithers cleverly among the plants.' },
-  animals: { x: 10, y: 6, label: 'Animals', description: 'Creatures of every kind roam in the Garden of Eden.' },
-  eve: { x: 8, y: 6, label: 'Eve', description: 'Eve stands beside Adam as the story of the first family begins.' },
-  altar: { x: 2, y: 6, label: 'Garden Altar', description: 'A place of prayer, praise, and obedience to God.' },
-};
-
-const storyEntries = [
-  'God formed Adam from the dust of the earth and breathed life into him.',
-  'Adam was placed in the Garden of Eden to work it and keep it.',
-  'God brought creatures to Adam, and he named them according to their kind.',
-  'The serpent tempted Adam and Eve to disobey God and eat the forbidden fruit.',
-  'The first sin entered the world, and Adam and Eve were driven out of Eden.',
-  'The story continues with the sorrow of Cain and Abel and the first generations of humanity.'
-];
-
-const boardEl = document.getElementById('gameBoard');
-const chapterLabel = document.getElementById('chapterLabel');
-const missionLabel = document.getElementById('missionLabel');
-const missionText = document.getElementById('missionText');
-const playerInfo = document.getElementById('playerInfo');
-const storyLog = document.getElementById('storyLog');
-
-function addLog(message) {
-  state.logs.unshift(message);
-  const entries = state.logs.slice(0, 8).map((entry) => `<div class="log-entry">${entry}</div>`).join('');
-  storyLog.innerHTML = entries;
-}
-
-function renderBoard() {
-  boardEl.innerHTML = '';
-
-  for (let y = 0; y < BOARD_HEIGHT; y++) {
-    for (let x = 0; x < BOARD_WIDTH; x++) {
-      const cell = document.createElement('div');
-      const tileKey = world[y][x];
-      const tileInfo = tileTypes[tileKey] || tileTypes.grass;
-      cell.className = `tile ${tileInfo.className}`;
-      cell.dataset.icon = tileInfo.icon;
-
-      if (x === state.player.x && y === state.player.y) {
-        const player = document.createElement('div');
-        player.className = 'player';
-        cell.appendChild(player);
+    @media (max-width: 900px) {
+      .game-layout {
+        grid-template-columns: 1fr;
       }
 
-      boardEl.appendChild(cell);
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .hud {
+        align-items: flex-start;
+      }
     }
-  }
-}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div>
+        <h1>Genesis: The Beginning</h1>
+        <p class="subtitle">Adam's Mission</p>
+      </div>
+      <div class="hud">
+        <span id="chapterLabel">Chapter 1</span>
+        <span id="missionLabel">Mission: Step into Eden</span>
+      </div>
+    </header>
 
-function getCellName(x, y) {
-  if (x === special.tree.x && y === special.tree.y) return special.tree.label;
-  if (x === special.river.x && y === special.river.y) return special.river.label;
-  if (x === special.serpent.x && y === special.serpent.y) return special.serpent.label;
-  if (x === special.animals.x && y === special.animals.y) return special.animals.label;
-  if (x === special.eve.x && y === special.eve.y) return special.eve.label;
-  if (x === special.altar.x && y === special.altar.y) return special.altar.label;
-  return 'Garden path';
-}
+    <div class="game-layout">
+      <section class="board-panel">
+        <div id="board" class="board" aria-label="Game board"></div>
+      </section>
 
-function setChapter(chapterNumber, missionTextValue) {
-  state.chapter = chapterNumber;
-  state.mission = missionTextValue;
-  chapterLabel.textContent = `Chapter ${chapterNumber}`;
-  missionLabel.textContent = `Mission: ${missionTextValue}`;
-  missionText.textContent = `Current objective: ${missionTextValue}.`;
-}
+      <aside class="story-panel">
+        <div class="info-box">
+          <h2>Adam</h2>
+          <p id="playerInfo">Made by God and given life in the Garden of Eden.</p>
+        </div>
 
-function inspectCurrentPosition() {
-  const { x, y } = state.player;
-  if (x === special.tree.x && y === special.tree.y) {
-    addLog('You stand before the Tree of Knowledge. God told Adam not to eat from it.');
-    if (!state.fruitTaken) addLog('A fruit hangs on the tree. It is forbidden, but the temptation is real.');
-    return;
-  }
+        <div class="info-box">
+          <h2>Objective</h2>
+          <p id="objectiveText">Walk with obedience, guard creation, and trust God.</p>
+        </div>
 
-  if (x === special.river.x && y === special.river.y) {
-    addLog('The river reflects the beauty of Eden. God's provision is everywhere around you.');
-    return;
-  }
+        <div class="info-box log-box">
+          <h2>Story Log</h2>
+          <div id="storyLog" aria-live="polite"></div>
+        </div>
+      </aside>
+    </div>
 
-  if (x === special.serpent.x && y === special.serpent.y) {
-    addLog('The serpent whispers: "You will not surely die. Eat of the fruit and be wise."');
-    state.serpentTempted = true;
-    return;
-  }
+    <footer class="controls-panel">
+      <div class="movement-grid">
+        <div></div>
+        <button class="button-primary" data-dir="up">↑</button>
+        <div></div>
+        <button class="button-primary" data-dir="left">←</button>
+        <button class="button-primary" data-dir="down">↓</button>
+        <button class="button-primary" data-dir="right">→</button>
+      </div>
 
-  if (x === special.animals.x && y === special.animals.y) {
-    addLog('The animals move across the garden. Adam is meant to care for them and name them.');
-    state.namedAnimals = true;
-    return;
-  }
+      <div class="actions">
+        <button class="button-cyan" id="inspectBtn">Inspect</button>
+        <button class="button-cyan" id="talkBtn">Talk</button>
+        <button class="button-primary" id="takeBtn">Take</button>
+        <button class="button-danger" id="useBtn">Use / Act</button>
+      </div>
+    </footer>
+  </div>
 
-  if (x === special.eve.x && y === special.eve.y) {
-    addLog('Eve is here with you, and the future of the world begins to unfold.');
-    return;
-  }
+  <script>
+    const BOARD_WIDTH = 12;
+    const BOARD_HEIGHT = 8;
 
-  if (x === special.altar.x && y === special.altar.y) {
-    addLog('You kneel in prayer and remember God's commands. Obedience is more valuable than temptation.');
-    return;
-  }
+    const tileTypes = {
+      grass: { icon: '🌿', className: 'grass' },
+      path: { icon: '🟫', className: 'path' },
+      water: { icon: '💧', className: 'water' },
+      tree: { icon: '🌳', className: 'tree' },
+      rock: { icon: '🪨', className: 'rock' },
+      altar: { icon: '⛪', className: 'altar' },
+      wood: { icon: '🪵', className: 'wood' },
+      fire: { icon: '🔥', className: 'fire' },
+      dark: { icon: '🌑', className: 'dark' }
+    };
 
-  addLog(`You walk through the Garden, following the path near ${getCellName(x, y)}.`);
-}
+    const levels = {
+      1: {
+        name: 'Creation and Eden',
+        objective: 'Step into Eden and honor the Creator.',
+        map: [
+          ['grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','tree','path','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','tree','grass','path','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','grass','path','grass','water','water','grass','grass','grass','grass'],
+          ['grass','grass','grass','grass','path','grass','water','water','grass','grass','grass','grass'],
+          ['grass','grass','grass','grass','path','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','grass','path','grass','grass','grass','grass','tree','grass','grass'],
+          ['grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass']
+        ],
+        landmarks: {
+          tree: { x: 3, y: 1, label: 'Tree of Life', desc: 'A beautiful tree in the middle of Eden, filled with life and purpose.' },
+          altar: { x: 2, y: 6, label: 'Altar of Prayer', desc: 'This is where Adam remembers God and gives thanks.' },
+          river: { x: 6, y: 3, label: 'River of Eden', desc: 'The river brings life and refreshment to the garden.' },
+          animals: { x: 9, y: 6, label: 'Wild Creatures', desc: 'Every kind of living creature thrives in the garden.' }
+        },
+        start: { x: 1, y: 1 },
+        win: { x: 2, y: 6 }
+      },
+      2: {
+        name: 'Naming the Animals',
+        objective: 'Care for creation and name the living things.',
+        map: [
+          ['grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','path','grass','grass','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','grass','grass','grass','grass','grass','path','grass','grass','grass'],
+          ['grass','grass','grass','grass','path','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','grass','path','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','grass','path','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','grass','grass','grass','grass','grass','path','grass','grass','grass'],
+          ['grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass']
+        ],
+        landmarks: {
+          animals: { x: 8, y: 6, label: 'Animals of the Earth', desc: 'The creatures gather, waiting for Adam to name them.' },
+          tree: { x: 2, y: 2, label: 'Tree of Purpose', desc: 'Eden is alive with order and design under God.' },
+          altar: { x: 5, y: 4, label: 'Obedience Stone', desc: 'A reminder of God’s command and Adam’s duty.' }
+        },
+        start: { x: 1, y: 1 },
+        win: { x: 8, y: 6 }
+      },
+      3: {
+        name: 'The Serpent',
+        objective: 'Resist the lies and stay obedient to God.',
+        map: [
+          ['grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','tree','grass','path','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','grass','path','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','grass','path','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','grass','path','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','grass','path','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass']
+        ],
+        landmarks: {
+          serpent: { x: 9, y: 1, label: 'The Serpent', desc: 'It slithers with cunning words and a twisted promise.' },
+          tree: { x: 2, y: 2, label: 'Forbidden Tree', desc: 'The tree of knowledge stands in the garden, forbidden by God.' },
+          altar: { x: 8, y: 5, label: 'Garden Path', desc: 'Adam must choose obedience over the serpent’s lie.' }
+        },
+        start: { x: 1, y: 1 },
+        win: { x: 9, y: 1 }
+      },
+      4: {
+        name: 'The Fall',
+        objective: 'Face the cost of disobedience and leave Eden.',
+        map: [
+          ['grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','tree','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','path','path','path','path','path','grass','grass','grass','grass'],
+          ['grass','grass','grass','path','grass','grass','path','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','path','grass','grass','path','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','path','path','path','path','path','grass','grass','grass','grass'],
+          ['grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass']
+        ],
+        landmarks: {
+          tree: { x: 1, y: 1, label: 'Forbidden Tree', desc: 'The fruit has been taken. Shame and guilt now follow Adam.' },
+          eve: { x: 8, y: 6, label: 'Eve', desc: 'Eve stands near Adam as the reality of sin settles over them.' },
+          gate: { x: 10, y: 3, label: 'Eden Gate', desc: 'The gate closes behind them. Eden is lost.' }
+        },
+        start: { x: 1, y: 5 },
+        win: { x: 10, y: 3 }
+      },
+      5: {
+        name: 'Cain and Abel',
+        objective: 'Learn the consequences of sin and the first families of humanity.',
+        map: [
+          ['grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','path','grass','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','path','grass','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','path','grass','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','path','grass','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','path','grass','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','path','grass','grass','grass','tree','grass','grass','grass','grass'],
+          ['grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass']
+        ],
+        landmarks: {
+          field: { x: 3, y: 3, label: 'Crop Field', desc: 'Cain tends the ground and brings an offering of produce.' },
+          flock: { x: 8, y: 6, label: 'Sheep Fold', desc: 'Abel keeps the flock and offers the firstborn of his sheep.' },
+          altar: { x: 10, y: 3, label: 'Offering Altar', desc: 'The first offerings are made before the Lord.' }
+        },
+        start: { x: 1, y: 1 },
+        win: { x: 10, y: 3 }
+      },
+      6: {
+        name: 'The Flood',
+        objective: 'Trust God through judgment and remember His promises.',
+        map: [
+          ['grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass'],
+          ['grass','grass','grass','water','water','water','water','water','grass','grass','grass','grass'],
+          ['grass','grass','water','water','water','water','water','water','water','grass','grass','grass'],
+          ['grass','grass','water','water','water','water','water','water','water','grass','grass','grass'],
+          ['grass','grass','water','water','water','water','water','water','water','grass','grass','grass'],
+          ['grass','grass','grass','water','water','water','water','water','grass','grass','grass','grass'],
+          ['grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass','grass']
+        ],
+        landmarks: {
+          ark: { x: 4, y: 4, label: 'The Ark', desc: 'Noah builds the ark by God’s command and brings the animals in.' },
+          rain: { x: 7, y: 2, label: 'Storm Clouds', desc: 'The heavens open and the earth is covered by judgment.' },
+          rainbow: { x: 10, y: 6, label: 'Rainbow Promise', desc: 'After the flood, God promises never to destroy the world in this way again.' }
+        },
+        start: { x: 1, y: 1 },
+        win: { x: 10, y: 6 }
+      }
+    };
 
-function movePlayer(dx, dy) {
-  const nextX = Math.max(0, Math.min(BOARD_WIDTH - 1, state.player.x + dx));
-  const nextY = Math.max(0, Math.min(BOARD_HEIGHT - 1, state.player.y + dy));
+    const sceneOrder = [1, 2, 3, 4, 5, 6];
+    let currentLevel = 1;
+    let player = { x: 1, y: 1 };
+    let logs = [];
+    let storyIndex = 0;
+    let objectiveState = { fruitTaken: false, serpentDefeated: false, namedAnimals: false, offeringsMade: false };
 
-  state.player.x = nextX;
-  state.player.y = nextY;
+    const boardEl = document.getElementById('board');
+    const chapterLabel = document.getElementById('chapterLabel');
+    const missionLabel = document.getElementById('missionLabel');
+    const objectiveText = document.getElementById('objectiveText');
+    const playerInfo = document.getElementById('playerInfo');
+    const storyLog = document.getElementById('storyLog');
 
-  if (state.chapter === 1) {
-    if (nextX === special.altar.x && nextY === special.altar.y) {
-      setChapter(1, 'Honor God and obey His command');
-      addLog('You pause at the garden altar, remembering God's instruction and your duty.');
+    const storyEntries = [
+      'In the beginning, God created the heavens and the earth. Darkness was overcome by His word.',
+      'God formed Adam from the dust and breathed life into him. Adam was placed in Eden to serve and guard it.',
+      'Adam named the living creatures and cared for the garden under God’s authority.',
+      'The serpent tempted Adam and Eve with a promise of wisdom and power apart from God.',
+      'Disobedience brought sin into the world. Eden was closed to Adam and Eve.',
+      'Cain and Abel brought their offerings, and the story of humanity unfolded in grief and consequence.',
+      'Noah trusted God through the flood, and the rainbow became a sign of covenant and mercy.'
+    ];
+
+    function addLog(message) {
+      logs.unshift(message);
+      storyLog.innerHTML = logs.slice(0, 8).map(entry => `<div class="log-entry">${entry}</div>`).join('');
     }
 
-    if (nextX === special.animals.x && nextY === special.animals.y) {
-      setChapter(2, 'Name the animals and care for Eden');
-      addLog('The living creatures of the earth surround you. You are given the task of naming them.');
-      playerInfo.textContent = 'Adam in the Garden, keeper of creation.';
+    function getLevelData(levelNumber) {
+      return levels[levelNumber] || levels[1];
     }
 
-    if (nextX === special.tree.x && nextY === special.tree.y) {
-      setChapter(3, 'Resist the forbidden fruit');
-      addLog('You approach the tree that God had warned you about.');
+    function getTileIconForCell(x, y, levelData) {
+      const { landmarks } = levelData;
+      const matches = Object.entries(landmarks).find(([, v]) => v.x === x && v.y === y);
+      if (!matches) return tileTypes.grass;
+      const key = matches[0];
+      if (key === 'tree' || key === 'Forbidden Tree') return tileTypes.tree;
+      if (key === 'river' || key === 'rain' || key === 'water') return tileTypes.water;
+      if (key === 'altar' || key === 'gate' || key === 'offering') return tileTypes.altar;
+      if (key === 'animals' || key === 'field' || key === 'flock') return tileTypes.wood;
+      if (key === 'serpent') return tileTypes.dark;
+      if (key === 'rainbow') return tileTypes.fire;
+      return tileTypes.grass;
     }
-  }
 
-  if (state.chapter === 2 && nextX === special.serpent.x && nextY === special.serpent.y) {
-    setChapter(3, 'Beware the serpent');
-    addLog('The serpent has entered the garden and speaks with a cunning voice.');
-  }
+    function renderBoard() {
+      const levelData = getLevelData(currentLevel);
+      boardEl.innerHTML = '';
 
-  if (state.chapter >= 3 && nextX === special.tree.x && nextY === special.tree.y && !state.fruitTaken) {
-    addLog('The fruit of the forbidden tree is within reach.');
-  }
+      for (let y = 0; y < BOARD_HEIGHT; y++) {
+        for (let x = 0; x < BOARD_WIDTH; x++) {
+          const tileKey = levelData.map[y][x] || 'grass';
+          const tileInfo = tileTypes[tileKey] || tileTypes.grass;
+          const cell = document.createElement('div');
+          cell.className = `tile ${tileInfo.className}`;
+          cell.dataset.icon = tileInfo.icon;
 
-  renderBoard();
-  updateMissionDisplay();
-}
+          if (x === player.x && y === player.y) {
+            const p = document.createElement('div');
+            p.className = 'player';
+            cell.appendChild(p);
+          }
 
-function takeItem() {
-  const { x, y } = state.player;
-
-  if (x === special.tree.x && y === special.tree.y) {
-    if (!state.fruitTaken) {
-      state.fruitTaken = true;
-      setChapter(4, 'Learn the cost of disobedience');
-      addLog('You take the fruit. A choice has been made.');
-      playerInfo.textContent = 'Adam has taken the forbidden fruit and feels the consequences of sin.';
-    } else {
-      addLog('The forbidden fruit is already in your hand.');
+          boardEl.appendChild(cell);
+        }
+      }
     }
-    return;
-  }
 
-  if (x === special.river.x && y === special.river.y) {
-    addLog('You drink from the river and feel renewed by God's care.');
-    return;
-  }
+    function getCurrentCellName(x, y) {
+      const levelData = getLevelData(currentLevel);
+      const landmark = Object.values(levelData.landmarks).find(v => v.x === x && v.y === y);
+      return landmark ? landmark.label : 'Open ground';
+    }
 
-  addLog(`There is nothing to take here in ${getCellName(x, y)}.`);
-}
+    function setMissionText() {
+      const levelData = getLevelData(currentLevel);
+      const cell = getCurrentCellName(player.x, player.y);
+      chapterLabel.textContent = `Chapter ${currentLevel}`;
+      missionLabel.textContent = `Mission: ${levelData.objective}`;
+      objectiveText.textContent = `${levelData.objective}. You are near ${cell}.`;
+    }
 
-function useAction() {
-  const { x, y } = state.player;
+    function inspectCurrentLocation() {
+      const levelData = getLevelData(currentLevel);
+      const landmark = Object.values(levelData.landmarks).find(v => v.x === player.x && v.y === player.y);
+      if (landmark) {
+        addLog(landmark.desc);
+        if (currentLevel === 1 && landmark.label === 'Altar of Prayer') {
+          addLog('Adam gives thanks to God and remembers his purpose in Eden.');
+        }
+        if (currentLevel === 2 && landmark.label === 'Animals of the Earth') {
+          addLog('Adam names the creatures one by one, reflecting God’s order in creation.');
+          objectiveState.namedAnimals = true;
+        }
+        if (currentLevel === 3 && landmark.label === 'The Serpent') {
+          addLog('The serpent whispers: “You will be like God.”');
+          objectiveState.serpentDefeated = true;
+        }
+        if (currentLevel === 4 && landmark.label === 'Eve') {
+          addLog('The consequences of sin are now real. The world has changed forever.');
+        }
+        return;
+      }
+      addLog(`Adam walks through the open ground of ${levelData.name}.`);
+    }
 
-  if (x === special.serpent.x && y === special.serpent.y && state.fruitTaken) {
-    addLog('You hear the serpent's lie and remember God's command: "You must not eat."');
-    state.serpentDefeated = true;
-    setChapter(5, 'Face the fall and leave Eden');
-    playerInfo.textContent = 'Adam and Eve have fallen into sin and must leave Eden.';
-    addLog('The sin of disobedience has entered the world, and the Garden is lost.');
-    return;
-  }
+    function handleTalk() {
+      const levelData = getLevelData(currentLevel);
+      const landmark = Object.values(levelData.landmarks).find(v => v.x === player.x && v.y === player.y);
+      if (!landmark) {
+        addLog('Adam speaks to the quiet of the earth and listens for God’s voice.');
+        return;
+      }
 
-  if (x === special.eve.x && y === special.eve.y && state.serpentDefeated) {
-    addLog('You and Eve now face the consequences of the fall. The gates of Eden close behind you.');
-    setChapter(6, 'Carry the burden of sin');
-    return;
-  }
+      if (landmark.label === 'The Serpent') {
+        addLog('The serpent says: “Eat the fruit and become wise.”');
+      } else if (landmark.label === 'Animals of the Earth') {
+        addLog('Adam speaks to each creature and gives it a name.');
+      } else if (landmark.label === 'Eve') {
+        addLog('Eve and Adam share the sorrow of the fall and the weight of new responsibility.');
+      } else if (landmark.label === 'Rainbow Promise') {
+        addLog('God’s covenant is renewed, and the promise of mercy stands forever.');
+      } else {
+        addLog(`Adam speaks to ${landmark.label} and remembers the Lord’s design.`);
+      }
+    }
 
-  if (x === special.altar.x && y === special.altar.y) {
-    addLog('You ask for forgiveness and seek God's mercy after the fall.');
-    state.completed = true;
-    addLog('The story of Genesis continues: sorrow, sacrifice, and hope for the generations to come.');
-    return;
-  }
+    function takeItem() {
+      const levelData = getLevelData(currentLevel);
+      const landmark = Object.values(levelData.landmarks).find(v => v.x === player.x && v.y === player.y);
 
-  if (x === special.tree.x && y === special.tree.y && state.fruitTaken) {
-    addLog('You eat the fruit and know shame for the first time.');
-    state.serpentDefeated = true;
-    setChapter(5, 'Face the fall and leave Eden');
-    playerInfo.textContent = 'Adam has eaten the fruit and the world has changed forever.';
-    return;
-  }
+      if (!landmark) {
+        addLog('There is nothing to take here.');
+        return;
+      }
 
-  addLog('You act with faith, but there is no greater action than obeying God.');
-}
+      if (currentLevel === 1 && landmark.label === 'Tree of Life') {
+        addLog('Adam gathers from the tree and sees the abundance of God’s provision.');
+      } else if (currentLevel === 3 && landmark.label === 'Forbidden Tree') {
+        objectiveState.fruitTaken = true;
+        addLog('Adam takes the forbidden fruit. The choice is made.');
+      } else if (currentLevel === 6 && landmark.label === 'The Ark') {
+        addLog('Noah and the animals are safe within the ark by God’s protection.');
+      } else {
+        addLog(`Adam takes a small sign of the world around him at ${landmark.label}.`);
+      }
+    }
 
-function updateMissionDisplay() {
-  const { x, y } = state.player;
-  const cellName = getCellName(x, y);
-  missionText.textContent = `Current objective: ${state.mission}. You are near ${cellName}.`;
-}
+    function useAction() {
+      const levelData = getLevelData(currentLevel);
+      const landmark = Object.values(levelData.landmarks).find(v => v.x === player.x && v.y === player.y);
 
-function handleTalk() {
-  const { x, y } = state.player;
+      if (currentLevel === 1 && landmark && landmark.label === 'Altar of Prayer') {
+        addLog('Adam prays and praises God, choosing obedience over temptation.');
+        advanceLevel();
+        return;
+      }
 
-  if (x === special.serpent.x && y === special.serpent.y) {
-    addLog('The serpent says: "The fruit is good. You will be like God."');
-    return;
-  }
+      if (currentLevel === 2 && landmark && landmark.label === 'Animals of the Earth') {
+        addLog('Adam names the creatures, showing care and responsibility over the earth.');
+        advanceLevel();
+        return;
+      }
 
-  if (x === special.animals.x && y === special.animals.y) {
-    addLog('You speak to the creatures and name them by their kind.');
-    state.namedAnimals = true;
-    return;
-  }
+      if (currentLevel === 3 && landmark && landmark.label === 'The Serpent') {
+        addLog('Adam refuses the serpent’s lie and remembers God’s command. The temptation is resisted.');
+        advanceLevel();
+        return;
+      }
 
-  if (x === special.eve.x && y === special.eve.y) {
-    addLog('Eve and Adam share the burden of the moment, and the story of humanity begins.');
-    return;
-  }
+      if (currentLevel === 4 && landmark && landmark.label === 'Eden Gate') {
+        addLog('Adam and Eve walk out of Eden under the weight of sin and sorrow.');
+        advanceLevel();
+        return;
+      }
 
-  addLog('You speak to the stillness of the garden and listen for God's voice.');
-}
+      if (currentLevel === 5 && landmark && landmark.label === 'Offering Altar') {
+        objectiveState.offeringsMade = true;
+        addLog('The first offerings are made, and the story of sin and faith is carried forward.');
+        advanceLevel();
+        return;
+      }
 
-window.addEventListener('keydown', (event) => {
-  const key = event.key.toLowerCase();
-  if (key === 'arrowup' || key === 'w') movePlayer(0, -1);
-  if (key === 'arrowdown' || key === 's') movePlayer(0, 1);
-  if (key === 'arrowleft' || key === 'a') movePlayer(-1, 0);
-  if (key === 'arrowright' || key === 'd') movePlayer(1, 0);
-  if (key === 'e') inspectCurrentPosition();
-  if (key === 't') handleTalk();
-  if (key === 'f') takeItem();
-  if (key === ' ') {
-    event.preventDefault();
-    useAction();
-  }
-});
+      if (currentLevel === 6 && landmark && landmark.label === 'Rainbow Promise') {
+        addLog('The covenant is sealed: God promises mercy and restoration after judgment.');
+        addLog('The game ends with hope in the story of Genesis.');
+        playerInfo.textContent = 'The story of Genesis ends with covenant mercy and a future of hope.';
+        return;
+      }
 
-document.querySelector('[data-dir="up"]').addEventListener('click', () => movePlayer(0, -1));
-document.querySelector('[data-dir="down"]').addEventListener('click', () => movePlayer(0, 1));
-document.querySelector('[data-dir="left"]').addEventListener('click', () => movePlayer(-1, 0));
-document.querySelector('[data-dir="right"]').addEventListener('click', () => movePlayer(1, 0));
+      addLog('Adam chooses obedience, trust, and faith in God.');
+    }
 
-document.getElementById('inspectBtn').addEventListener('click', inspectCurrentPosition);
-document.getElementById('talkBtn').addEventListener('click', handleTalk);
-document.getElementById('takeBtn').addEventListener('click', takeItem);
-document.getElementById('actionBtn').addEventListener('click', useAction);
+    function advanceLevel() {
+      const nextIndex = sceneOrder.indexOf(currentLevel) + 1;
+      if (nextIndex < sceneOrder.length) {
+        currentLevel = sceneOrder[nextIndex];
+        const nextLevel = getLevelData(currentLevel);
+        player = { ...nextLevel.start };
+        addLog(`A new chapter begins: ${nextLevel.name}.`);
+        addLog(`Mission: ${nextLevel.objective}`);
+      } else {
+        addLog('The story of Genesis is complete in this game. Adam’s journey has reached its beginning and its consequences.');
+      }
+      playerInfo.textContent = `Adam is now in the chapter of ${getLevelData(currentLevel).name}.`;
+      setMissionText();
+      renderBoard();
+    }
 
-function initGame() {
-  setChapter(1, 'Step into the Garden');
-  addLog('God has made Adam and set him in Eden. The mission is to live faithfully, guard the garden, and obey the Creator.');
-  addLog('Use the arrow keys or buttons to move through the Garden of Eden.');
-  renderBoard();
-  updateMissionDisplay();
-}
+    function movePlayer(dx, dy) {
+      const levelData = getLevelData(currentLevel);
+      const nextX = Math.max(0, Math.min(BOARD_WIDTH - 1, player.x + dx));
+      const nextY = Math.max(0, Math.min(BOARD_HEIGHT - 1, player.y + dy));
+      player.x = nextX;
+      player.y = nextY;
 
-initGame();
-    </script>
+      const touched = Object.values(levelData.landmarks).find(v => v.x === nextX && v.y === nextY);
+      if (touched) {
+        addLog(`Adam reaches ${touched.label}.`);
+      }
+
+      setMissionText();
+      renderBoard();
+    }
+
+    function bindControls() {
+      document.querySelector('[data-dir="up"]').addEventListener('click', () => movePlayer(0, -1));
+      document.querySelector('[data-dir="down"]').addEventListener('click', () => movePlayer(0, 1));
+      document.querySelector('[data-dir="left"]').addEventListener('click', () => movePlayer(-1, 0));
+      document.querySelector('[data-dir="right"]').addEventListener('click', () => movePlayer(1, 0));
+      document.getElementById('inspectBtn').addEventListener('click', inspectCurrentLocation);
+      document.getElementById('talkBtn').addEventListener('click', handleTalk);
+      document.getElementById('takeBtn').addEventListener('click', takeItem);
+      document.getElementById('useBtn').addEventListener('click', useAction);
+
+      window.addEventListener('keydown', (event) => {
+        const key = event.key.toLowerCase();
+        if (key === 'arrowup' || key === 'w') movePlayer(0, -1);
+        if (key === 'arrowdown' || key === 's') movePlayer(0, 1);
+        if (key === 'arrowleft' || key === 'a') movePlayer(-1, 0);
+        if (key === 'arrowright' || key === 'd') movePlayer(1, 0);
+        if (key === 'e') inspectCurrentLocation();
+        if (key === 't') handleTalk();
+        if (key === 'f') takeItem();
+        if (key === ' ') {
+          event.preventDefault();
+          useAction();
+        }
+      });
+    }
+
+    function init() {
+      const startLevel = getLevelData(currentLevel);
+      player = { ...startLevel.start };
+      addLog('In the beginning, God created the heavens and the earth. Adam is called into a world of purpose and obedience.');
+      addLog('Move Adam through Eden and follow the story of Genesis.');
+      setMissionText();
+      renderBoard();
+      bindControls();
+    }
+
+    init();
+  </script>
 </body>
 </html>
