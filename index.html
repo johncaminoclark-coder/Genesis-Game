@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genesis Adventure: Adam's Mission</title>
+    <style>
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #0d1f17;
+  --panel: #112c21;
+  --panel-2: #18362b;
+  --text: #f1f5d6;
+  --accent: #d7a63f;
+  --accent-2: #8cd089;
+  --danger: #d76e46;
+  --tile: #2a4f38;
+  --tile-dark: #173824;
+  --tile-light: #3a6d4d;
+  --shadow: rgba(0, 0, 0, 0.35);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: radial-gradient(circle at top, #214833, var(--bg) 65%);
+  color: var(--text);
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #dbb462, #b9852b);
+  color: #20170a;
+  font-weight: 700;
+  padding: 0.7rem 1rem;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+button:hover {
+  filter: brightness(1.05);
+}
+
+.game-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(18, 41, 31, 0.9);
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  margin-bottom: 1rem;
+  box-shadow: 0 10px 25px var(--shadow);
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 3vw, 3rem);
+}
+
+.topbar p {
+  margin: 0.2rem 0 0;
+  color: #ceeacb;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.hud {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.game-layout {
+  display: grid;
+  grid-template-columns: 1.5fr 0.9fr;
+  gap: 1rem;
+}
+
+.board-panel,
+.story-panel,
+.controls-panel {
+  background: rgba(17, 44, 33, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 12px 24px var(--shadow);
+}
+
+.board-panel {
+  padding: 1rem;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(24px, 1fr));
+  gap: 4px;
+  background: linear-gradient(180deg, #1a3829, #0f251a);
+  border-radius: 12px;
+  padding: 0.75rem;
+  aspect-ratio: 12 / 8;
+  min-height: 460px;
+}
+
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: var(--tile);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.tile.grass { background: linear-gradient(180deg, var(--tile-light), var(--tile)); }
+.tile.water { background: linear-gradient(180deg, #4ba0d9, #2f5a8a); }
+.tile.tree { background: linear-gradient(180deg, #3d8f4e, #245b37); }
+.tile.rock { background: linear-gradient(180deg, #7d7d7d, #4d4d4d); }
+.tile.path { background: linear-gradient(180deg, #b89249, #8d6a2d); }
+.tile.dark { background: linear-gradient(180deg, #37443d, #202b28); }
+
+.tile::after {
+  content: attr(data-icon);
+  font-size: clamp(0.75rem, 1.8vw, 1.3rem);
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+}
+
+.player {
+  position: absolute;
+  width: 72%;
+  height: 72%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #f3d7b2, #c89158 60%, #6b4a2d 100%);
+  border: 2px solid rgba(0,0,0,0.35);
+  box-shadow: inset 0 0 12px rgba(255,255,255,0.25);
+  z-index: 3;
+}
+
+.story-panel {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.info-box {
+  background: rgba(24, 54, 43, 0.8);
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.info-box h2 {
+  margin: 0 0 0.45rem;
+  font-size: 1.1rem;
+  color: var(--accent-2);
+}
+
+.info-box p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.log-box {
+  flex: 1;
+}
+
+#storyLog {
+  max-height: 340px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding-right: 0.4rem;
+}
+
+.log-entry {
+  background: rgba(255,255,255,0.04);
+  border-left: 3px solid var(--accent);
+  padding: 0.5rem 0.7rem;
+  border-radius: 0 8px 8px 0;
+  line-height: 1.45;
+}
+
+.controls-panel {
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.movement-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 60px);
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.movement-grid button {
+  width: 60px;
+  height: 60px;
+  font-size: 1.5rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.actions button {
+  min-width: 140px;
+}
+
+@media (max-width: 850px) {
+  .game-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .board {
+    min-height: 380px;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hud {
+    align-items: flex-start;
+    text-align: left;
+  }
+}
+    </style>
+</head>
+<body>
+    <div class="game-shell">
+      <header class="topbar">
+        <div>
+          <h1>Genesis Adventure</h1>
+          <p>Adam's Mission</p>
+        </div>
+        <div class="hud">
+          <span id="chapterLabel">Chapter 1</span>
+          <span id="missionLabel">Mission: Step into the Garden</span>
+        </div>
+      </header>
+
+      <main class="game-layout">
+        <section class="board-panel">
+          <div id="gameBoard" class="board" aria-label="Game board"></div>
+        </section>
+
+        <aside class="story-panel">
+          <div class="info-box">
+            <h2>Adam</h2>
+            <p id="playerInfo">A man formed by God, placed in Eden with a purpose.</p>
+          </div>
+
+          <div class="info-box">
+            <h2>Mission</h2>
+            <p id="missionText">Walk the Garden, honor God, and protect what He has made.</p>
+          </div>
+
+          <div class="info-box log-box">
+            <h2>Story Log</h2>
+            <div id="storyLog" aria-live="polite"></div>
+          </div>
+        </aside>
+      </main>
+
+      <footer class="controls-panel">
+        <div class="movement-grid">
+          <div></div>
+          <button data-dir="up">↑</button>
+          <div></div>
+          <button data-dir="left">←</button>
+          <button data-dir="down">↓</button>
+          <button data-dir="right">→</button>
+        </div>
+
+        <div class="actions">
+          <button id="inspectBtn">Inspect</button>
+          <button id="talkBtn">Talk</button>
+          <button id="takeBtn">Take / Gather</button>
+          <button id="actionBtn">Use / Act</button>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+const BOARD_WIDTH = 12;
+const BOARD_HEIGHT = 8;
+
+const tileTypes = {
+  grass: { icon: '🌿', className: 'grass' },
+  water: { icon: '💧', className: 'water' },
+  tree: { icon: '🌳', className: 'tree' },
+  rock: { icon: '🪨', className: 'rock' },
+  path: { icon: '🏫', className: 'path' },
+  dark: { icon: '🌑', className: 'dark' },
+};
+
+const state = {
+  chapter: 1,
+  mission: 'Step into the Garden',
+  player: { x: 1, y: 1 },
+  fruitTaken: false,
+  serpentTempted: false,
+  serpentDefeated: false,
+  namedAnimals: false,
+  storyIndex: 0,
+  completed: false,
+  logs: [],
+};
+
+const world = [
+  [ 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass' ],
+  [ 'grass', 'grass', 'grass', 'grass', 'path', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass' ],
+  [ 'grass', 'grass', 'tree', 'grass', 'path', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass' ],
+  [ 'grass', 'grass', 'grass', 'grass', 'path', 'grass', 'water', 'water', 'grass', 'grass', 'grass', 'grass' ],
+  [ 'grass', 'grass', 'grass', 'grass', 'path', 'grass', 'water', 'water', 'grass', 'grass', 'grass', 'grass' ],
+  [ 'grass', 'grass', 'grass', 'grass', 'path', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass' ],
+  [ 'grass', 'grass', 'grass', 'grass', 'path', 'grass', 'grass', 'grass', 'grass', 'tree', 'grass', 'grass' ],
+  [ 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass', 'grass' ],
+];
+
+const special = {
+  tree: { x: 2, y: 2, label: 'Tree of Knowledge', description: 'The forbidden tree stands in the middle of Eden, heavy with fruit.' },
+  river: { x: 6, y: 3, label: 'River of Eden', description: 'The river flows through the garden, full of life and refreshment.' },
+  serpent: { x: 9, y: 1, label: 'Serpent', description: 'The serpent slithers cleverly among the plants.' },
+  animals: { x: 10, y: 6, label: 'Animals', description: 'Creatures of every kind roam in the Garden of Eden.' },
+  eve: { x: 8, y: 6, label: 'Eve', description: 'Eve stands beside Adam as the story of the first family begins.' },
+  altar: { x: 2, y: 6, label: 'Garden Altar', description: 'A place of prayer, praise, and obedience to God.' },
+};
+
+const storyEntries = [
+  'God formed Adam from the dust of the earth and breathed life into him.',
+  'Adam was placed in the Garden of Eden to work it and keep it.',
+  'God brought creatures to Adam, and he named them according to their kind.',
+  'The serpent tempted Adam and Eve to disobey God and eat the forbidden fruit.',
+  'The first sin entered the world, and Adam and Eve were driven out of Eden.',
+  'The story continues with the sorrow of Cain and Abel and the first generations of humanity.'
+];
+
+const boardEl = document.getElementById('gameBoard');
+const chapterLabel = document.getElementById('chapterLabel');
+const missionLabel = document.getElementById('missionLabel');
+const missionText = document.getElementById('missionText');
+const playerInfo = document.getElementById('playerInfo');
+const storyLog = document.getElementById('storyLog');
+
+function addLog(message) {
+  state.logs.unshift(message);
+  const entries = state.logs.slice(0, 8).map((entry) => `<div class="log-entry">${entry}</div>`).join('');
+  storyLog.innerHTML = entries;
+}
+
+function renderBoard() {
+  boardEl.innerHTML = '';
+
+  for (let y = 0; y < BOARD_HEIGHT; y++) {
+    for (let x = 0; x < BOARD_WIDTH; x++) {
+      const cell = document.createElement('div');
+      const tileKey = world[y][x];
+      const tileInfo = tileTypes[tileKey] || tileTypes.grass;
+      cell.className = `tile ${tileInfo.className}`;
+      cell.dataset.icon = tileInfo.icon;
+
+      if (x === state.player.x && y === state.player.y) {
+        const player = document.createElement('div');
+        player.className = 'player';
+        cell.appendChild(player);
+      }
+
+      boardEl.appendChild(cell);
+    }
+  }
+}
+
+function getCellName(x, y) {
+  if (x === special.tree.x && y === special.tree.y) return special.tree.label;
+  if (x === special.river.x && y === special.river.y) return special.river.label;
+  if (x === special.serpent.x && y === special.serpent.y) return special.serpent.label;
+  if (x === special.animals.x && y === special.animals.y) return special.animals.label;
+  if (x === special.eve.x && y === special.eve.y) return special.eve.label;
+  if (x === special.altar.x && y === special.altar.y) return special.altar.label;
+  return 'Garden path';
+}
+
+function setChapter(chapterNumber, missionTextValue) {
+  state.chapter = chapterNumber;
+  state.mission = missionTextValue;
+  chapterLabel.textContent = `Chapter ${chapterNumber}`;
+  missionLabel.textContent = `Mission: ${missionTextValue}`;
+  missionText.textContent = `Current objective: ${missionTextValue}.`;
+}
+
+function inspectCurrentPosition() {
+  const { x, y } = state.player;
+  if (x === special.tree.x && y === special.tree.y) {
+    addLog('You stand before the Tree of Knowledge. God told Adam not to eat from it.');
+    if (!state.fruitTaken) addLog('A fruit hangs on the tree. It is forbidden, but the temptation is real.');
+    return;
+  }
+
+  if (x === special.river.x && y === special.river.y) {
+    addLog('The river reflects the beauty of Eden. God's provision is everywhere around you.');
+    return;
+  }
+
+  if (x === special.serpent.x && y === special.serpent.y) {
+    addLog('The serpent whispers: "You will not surely die. Eat of the fruit and be wise."');
+    state.serpentTempted = true;
+    return;
+  }
+
+  if (x === special.animals.x && y === special.animals.y) {
+    addLog('The animals move across the garden. Adam is meant to care for them and name them.');
+    state.namedAnimals = true;
+    return;
+  }
+
+  if (x === special.eve.x && y === special.eve.y) {
+    addLog('Eve is here with you, and the future of the world begins to unfold.');
+    return;
+  }
+
+  if (x === special.altar.x && y === special.altar.y) {
+    addLog('You kneel in prayer and remember God's commands. Obedience is more valuable than temptation.');
+    return;
+  }
+
+  addLog(`You walk through the Garden, following the path near ${getCellName(x, y)}.`);
+}
+
+function movePlayer(dx, dy) {
+  const nextX = Math.max(0, Math.min(BOARD_WIDTH - 1, state.player.x + dx));
+  const nextY = Math.max(0, Math.min(BOARD_HEIGHT - 1, state.player.y + dy));
+
+  state.player.x = nextX;
+  state.player.y = nextY;
+
+  if (state.chapter === 1) {
+    if (nextX === special.altar.x && nextY === special.altar.y) {
+      setChapter(1, 'Honor God and obey His command');
+      addLog('You pause at the garden altar, remembering God's instruction and your duty.');
+    }
+
+    if (nextX === special.animals.x && nextY === special.animals.y) {
+      setChapter(2, 'Name the animals and care for Eden');
+      addLog('The living creatures of the earth surround you. You are given the task of naming them.');
+      playerInfo.textContent = 'Adam in the Garden, keeper of creation.';
+    }
+
+    if (nextX === special.tree.x && nextY === special.tree.y) {
+      setChapter(3, 'Resist the forbidden fruit');
+      addLog('You approach the tree that God had warned you about.');
+    }
+  }
+
+  if (state.chapter === 2 && nextX === special.serpent.x && nextY === special.serpent.y) {
+    setChapter(3, 'Beware the serpent');
+    addLog('The serpent has entered the garden and speaks with a cunning voice.');
+  }
+
+  if (state.chapter >= 3 && nextX === special.tree.x && nextY === special.tree.y && !state.fruitTaken) {
+    addLog('The fruit of the forbidden tree is within reach.');
+  }
+
+  renderBoard();
+  updateMissionDisplay();
+}
+
+function takeItem() {
+  const { x, y } = state.player;
+
+  if (x === special.tree.x && y === special.tree.y) {
+    if (!state.fruitTaken) {
+      state.fruitTaken = true;
+      setChapter(4, 'Learn the cost of disobedience');
+      addLog('You take the fruit. A choice has been made.');
+      playerInfo.textContent = 'Adam has taken the forbidden fruit and feels the consequences of sin.';
+    } else {
+      addLog('The forbidden fruit is already in your hand.');
+    }
+    return;
+  }
+
+  if (x === special.river.x && y === special.river.y) {
+    addLog('You drink from the river and feel renewed by God's care.');
+    return;
+  }
+
+  addLog(`There is nothing to take here in ${getCellName(x, y)}.`);
+}
+
+function useAction() {
+  const { x, y } = state.player;
+
+  if (x === special.serpent.x && y === special.serpent.y && state.fruitTaken) {
+    addLog('You hear the serpent's lie and remember God's command: "You must not eat."');
+    state.serpentDefeated = true;
+    setChapter(5, 'Face the fall and leave Eden');
+    playerInfo.textContent = 'Adam and Eve have fallen into sin and must leave Eden.';
+    addLog('The sin of disobedience has entered the world, and the Garden is lost.');
+    return;
+  }
+
+  if (x === special.eve.x && y === special.eve.y && state.serpentDefeated) {
+    addLog('You and Eve now face the consequences of the fall. The gates of Eden close behind you.');
+    setChapter(6, 'Carry the burden of sin');
+    return;
+  }
+
+  if (x === special.altar.x && y === special.altar.y) {
+    addLog('You ask for forgiveness and seek God's mercy after the fall.');
+    state.completed = true;
+    addLog('The story of Genesis continues: sorrow, sacrifice, and hope for the generations to come.');
+    return;
+  }
+
+  if (x === special.tree.x && y === special.tree.y && state.fruitTaken) {
+    addLog('You eat the fruit and know shame for the first time.');
+    state.serpentDefeated = true;
+    setChapter(5, 'Face the fall and leave Eden');
+    playerInfo.textContent = 'Adam has eaten the fruit and the world has changed forever.';
+    return;
+  }
+
+  addLog('You act with faith, but there is no greater action than obeying God.');
+}
+
+function updateMissionDisplay() {
+  const { x, y } = state.player;
+  const cellName = getCellName(x, y);
+  missionText.textContent = `Current objective: ${state.mission}. You are near ${cellName}.`;
+}
+
+function handleTalk() {
+  const { x, y } = state.player;
+
+  if (x === special.serpent.x && y === special.serpent.y) {
+    addLog('The serpent says: "The fruit is good. You will be like God."');
+    return;
+  }
+
+  if (x === special.animals.x && y === special.animals.y) {
+    addLog('You speak to the creatures and name them by their kind.');
+    state.namedAnimals = true;
+    return;
+  }
+
+  if (x === special.eve.x && y === special.eve.y) {
+    addLog('Eve and Adam share the burden of the moment, and the story of humanity begins.');
+    return;
+  }
+
+  addLog('You speak to the stillness of the garden and listen for God's voice.');
+}
+
+window.addEventListener('keydown', (event) => {
+  const key = event.key.toLowerCase();
+  if (key === 'arrowup' || key === 'w') movePlayer(0, -1);
+  if (key === 'arrowdown' || key === 's') movePlayer(0, 1);
+  if (key === 'arrowleft' || key === 'a') movePlayer(-1, 0);
+  if (key === 'arrowright' || key === 'd') movePlayer(1, 0);
+  if (key === 'e') inspectCurrentPosition();
+  if (key === 't') handleTalk();
+  if (key === 'f') takeItem();
+  if (key === ' ') {
+    event.preventDefault();
+    useAction();
+  }
+});
+
+document.querySelector('[data-dir="up"]').addEventListener('click', () => movePlayer(0, -1));
+document.querySelector('[data-dir="down"]').addEventListener('click', () => movePlayer(0, 1));
+document.querySelector('[data-dir="left"]').addEventListener('click', () => movePlayer(-1, 0));
+document.querySelector('[data-dir="right"]').addEventListener('click', () => movePlayer(1, 0));
+
+document.getElementById('inspectBtn').addEventListener('click', inspectCurrentPosition);
+document.getElementById('talkBtn').addEventListener('click', handleTalk);
+document.getElementById('takeBtn').addEventListener('click', takeItem);
+document.getElementById('actionBtn').addEventListener('click', useAction);
+
+function initGame() {
+  setChapter(1, 'Step into the Garden');
+  addLog('God has made Adam and set him in Eden. The mission is to live faithfully, guard the garden, and obey the Creator.');
+  addLog('Use the arrow keys or buttons to move through the Garden of Eden.');
+  renderBoard();
+  updateMissionDisplay();
+}
+
+initGame();
+    </script>
+</body>
+</html>
